@@ -1,0 +1,111 @@
+class Car:
+DIRECTIONS = ['N', 'E', 'S', 'W']
+MOVES = {
+'N': (0, 1),
+'E': (1, 0),
+'S': (0, -1),
+'W': (-1, 0)
+}
+def __init__(self, name, x, y, direction, commands):
+self.name = name
+self.x = x
+self.y = y
+self.direction = direction
+self.commands = commands
+self.position_history = []
+def turn_left(self):
+current_index = Car.DIRECTIONS.index(self.direction)
+self.direction = Car.DIRECTIONS[(current_index - 1) % 4]
+def turn_right(self):
+current_index = Car.DIRECTIONS.index(self.direction)
+self.direction = Car.DIRECTIONS[(current_index + 1) % 4]
+def move_forward(self, width, height):
+dx, dy = Car.MOVES[self.direction]
+new_x = self.x + dx
+new_y = self.y + dy
+if 0 <= new_x < width and 0 <= new_y < height:
+self.x = new_x
+self.y = new_y
+def execute_command(self, width, height):
+if self.commands:
+command = self.commands.pop(0)
+if command == 'L':
+self.turn_left()
+elif command == 'R':
+self.turn_right()
+elif command == 'F':
+self.move_forward(width, height)
+self.position_history.append((self.x, self.y, self.direction))
+class Simulation:
+def __init__(self):
+self.cars = []
+self.width = 0
+self.height = 0
+def add_car(self, name, x, y, direction, commands):
+car = Car(name, x, y, direction, list(commands))
+self.cars.append(car)
+def run_simulation(self):
+collisions = []
+steps = 0
+while any(car.commands for car in self.cars):
+positions = {(car.x, car.y): car.name for car in self.cars}
+for car in self.cars:
+car.execute_command(self.width, self.height)
+current_pos = (car.x, car.y)
+# Check for collision
+if current_pos in positions:
+collisions.append((car.name, positions[current_pos], current_pos, steps))
+car.commands = [] # Stop the car after collision
+positions.pop(current_pos) # Remove the colliding car
+steps += 1
+return collisions
+def display_results(self, collisions):
+if collisions:
+for car_name, collided_with, position, step in collisions:
+print(f"- {car_name}, collides with {collided_with} at {position} at step {step}")
+else:
+for car in self.cars:
+print(f"- {car.name}, ({car.x},{car.y}) {car.direction}")
+def main():
+print("Welcome to Auto Driving Car Simulation!")
+# Field dimensions
+width, height = map(int, input("Please enter the width and height of the simulation field in x y format:\n").split())
+print(f"You have created a field of {width} x {height}.")
+sim = Simulation()
+sim.width = width
+sim.height = height
+while True:
+print("Please choose from the following options:")
+print("[1] Add a car to field")
+print("[2] Run simulation")
+choice = input().strip()
+if choice == '1':
+car_name = input("Please enter the name of the car:\n").strip()
+x, y, direction = input(f"Please enter initial position of car {car_name} in x y Direction format:\n").split()
+x, y = int(x), int(y)
+commands = input(f"Please enter the commands for car {car_name}:\n").strip()
+sim.add_car(car_name, x, y, direction, commands)
+print("Your current list of cars are:")
+for car in sim.cars:
+print(f"- {car.name}, ({car.x},{car.y}) {car.direction}, {''.join(car.commands)}")
+elif choice == '2':
+collisions = sim.run_simulation()
+print("Your current list of cars are:")
+for car in sim.cars:
+print(f"- {car.name}, ({car.x},{car.y}) {car.direction}, {''.join(car.commands)}")
+print("\nAfter simulation, the result is:")
+sim.display_results(collisions)
+print("Please choose from the following options:")
+print("[1] Start over")
+print("[2] Exit")
+if input().strip() == '2':
+print("Thank you for running the simulation. Goodbye!")
+break
+else:
+# Reset the simulation
+sim = Simulation()
+sim.width = width
+sim.height = height
+if __name__ == "__main__":
+main()
+ 
